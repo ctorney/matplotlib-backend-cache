@@ -44,7 +44,6 @@ getwindowsize() {
 
 display_image() {
   clear
-  getwindowsize
   if [ $h -eq 0 ]; then 
     convert "${images[$show_counter]}" sixel:-
   else
@@ -60,6 +59,7 @@ display_image() {
   # echo -ne "'q' to quit, 'n' for next, 'p' for previous"
 }
 
+getwindowsize
 while true; do
   # get a list of sixel images in the HOME/.cache/matplotlib directory
   images=($( ls -t $HOME/.cache/matplotlib/*.png ))
@@ -77,6 +77,7 @@ while true; do
     if [ $show_counter -ge $num_images ]; then
       show_counter=0
     fi
+    getwindowsize
     display_image
   fi
   if [ "$input" = "p" ]; then
@@ -84,6 +85,7 @@ while true; do
     if [ $show_counter -lt 0 ]; then
       show_counter=$((num_images - 1))
     fi
+    getwindowsize
     display_image
   fi
 done
