@@ -1,7 +1,7 @@
 ##!/usr/bin/bash
 
 # use nullglob in case there are no matching files
-shopt -s nullglob
+shopt -u nullglob
 
 # create a variable to hold the number of images
 num_images=-1
@@ -33,60 +33,66 @@ getwindowsize() {
     h=$(tput lines)
   fi
 
-
-
-
-    
-    # Return the results (or the default if querying didn't work)
-    return
+  return
 }
 
 
 display_image() {
+  # if the num_images is 0, do nothing
+  if [ $num_images -eq 0 ]; then
+    return
+  fi
   clear
   if [ $h -eq 0 ]; then 
     convert "${images[$show_counter]}" sixel:-
   else
     #get width and height of image
-    wx=$(identify -format "%w" "${images[$show_counter]}")
-    hx=$(identify -format "%h" "${images[$show_counter]}")
-    # set the border so that 
-    # convert "${images[$show_counter]}" sixel:-
     convert "${images[$show_counter]}" -resize ${w}x${h} -background black -gravity center -extent ${w}x${h} sixel:-
-    # convert "${images[$show_counter]}"  -bordercolor black -border $(((w-wx)/2))x$(((h-hx)/2)) sixel:-
   fi
-  # cat "${images[$show_counter]}"
-  # echo -ne "'q' to quit, 'n' for next, 'p' for previous"
 }
 
 getwindowsize
+echo "Press q to quit, n for next image, p for previous image, cc to clear cache"
+sleep 2
+
 while true; do
-  # get a list of sixel images in the HOME/.cache/matplotlib directory
-  images=($( ls -t $HOME/.cache/matplotlib/*.png ))
-  if [ ${#images[@]} -ne $num_images ]; then
-    num_images=${#images[@]}
-    show_counter=0
-    display_image
-  fi
   read -rsn1 -t 1 input
   if [ "$input" = "q" ]; then
     break
   fi
-  if [ "$input" = "n" ]; then
-    let show_counter+=1
-    if [ $show_counter -ge $num_images ]; then
+  
+  if find $HOME/.cache/matplotlib/ -mindepth 1 -maxdepth 1 -name *.png | read; then
+    images=($( ls -t $HOME/.cache/matplotlib/*.png ))
+    # print out the image file names
+    if [ ${#images[@]} -ne $num_images ]; then
+      num_images=${#images[@]}
       show_counter=0
+      display_image
     fi
-    getwindowsize
-    display_image
-  fi
-  if [ "$input" = "p" ]; then
-    let show_counter-=1
-    if [ $show_counter -lt 0 ]; then
-      show_counter=$((num_images - 1))
+    if [ "$input" = "n" ]; then
+      let show_counter+=1
+      if [ $show_counter -ge $num_images ]; then
+        show_counter=0
+      fi
+      getwindowsize
+      display_image
     fi
-    getwindowsize
-    display_image
+    if [ "$input" = "p" ]; then
+      let show_counter-=1
+      if [ $show_counter -lt 0 ]; then
+        show_counter=$((num_images - 1))
+      fi
+      getwindowsize
+      display_image
+    fi
+    if [ "$input" = "c" ]; then
+      read -rsn1 -t 1 input
+      if [ "$input" = "c" ]; then
+        rm $HOME/.cache/matplotlib/*.png
+        num_images=-1
+        show_counter=0
+      fi
+    fi 
   fi
 done
 tput cnorm
