@@ -30,13 +30,13 @@ class FigureManagerCache(FigureManagerBase):
 
         try:
             # use datestamp as filename
-            filename = os.path.join(imstore,time.strftime("%Y%m%d%H%M%S.sixel"))
+            filename = os.path.join(imstore,time.strftime("%Y%m%d%H%M%S.png"))
 
             print('\n   ', end='')
-            p = Popen(["convert", "-bordercolor", "gray", "-border", "2", "png:-", "sixel:" +  filename], stdin=PIPE)
-            self.canvas.figure.savefig(p.stdin, format="png")
-            p.stdin.close()
-            p.wait()
+            # p = Popen(["convert", "-bordercolor", "gray", "-border", "2", "png:-", "sixel:" +  filename], stdin=PIPE)
+            self.canvas.figure.savefig(filename, bbox_inches='tight', format='png')
+            # p.stdin.close()
+            # p.wait()
         except FileNotFoundError:
             warnings.warn(
                 "Unable to convert plot to sixel format: Imagemagick not found."

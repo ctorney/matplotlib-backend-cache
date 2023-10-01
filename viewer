@@ -61,7 +61,8 @@ while true; do
     break
   fi
   
-  if find $HOME/.cache/matplotlib/ -mindepth 1 -maxdepth 1 -name *.png | read; then
+  # if find $HOME/.cache/matplotlib/ -mindepth 1 -maxdepth 1 -name *.png | read; then
+  if find "$HOME/.cache/matplotlib/" -mindepth 1 -maxdepth 1 -name "*.png" -print -quit | grep -q .; then
     images=($( ls -t $HOME/.cache/matplotlib/*.png ))
     # print out the image file names
     if [ ${#images[@]} -ne $num_images ]; then
@@ -89,6 +90,7 @@ while true; do
       read -rsn1 -t 1 input
       if [ "$input" = "c" ]; then
         rm $HOME/.cache/matplotlib/*.png
+        clear
         num_images=-1
         show_counter=0
       fi
