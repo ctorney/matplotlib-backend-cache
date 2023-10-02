@@ -99,7 +99,7 @@ while true; do
       show_counter=0
       display_image
     fi
-    if [ "$input" = "n" ]; then
+    if [ "$input" = "p" ]; then
       let show_counter+=1
       if [ $show_counter -ge $num_images ]; then
         show_counter=0
@@ -107,7 +107,7 @@ while true; do
       getwindowsize
       display_image
     fi
-    if [ "$input" = "p" ]; then
+    if [ "$input" = "n" ]; then
       let show_counter-=1
       if [ $show_counter -lt 0 ]; then
         show_counter=$((num_images - 1))
