@@ -9,6 +9,11 @@ show_counter=0
 
 tput civis
 
+if find "$HOME/.cache/matplotlib/" -mindepth 1 -maxdepth 1 -name "*.png" -print -quit | grep -q .; then
+  images=($( ls -t $HOME/.cache/matplotlib/*.png ))
+  num_images=${#images[@]}
+fi
+
 getwindowsize() {
   # return the width and height of the pane if tmux is running
   # if not in tmux return 0,0
@@ -77,6 +82,7 @@ display_image() {
 getwindowsize
 echo "Press q to quit, n for next image, p for previous image, cc to clear cache"
 sleep 2
+clear
 
 while true; do
   read -rsn1 -t 1 input
