@@ -47,7 +47,30 @@ display_image() {
     convert "${images[$show_counter]}" sixel:-
   else
     #get width and height of image
-    convert "${images[$show_counter]}" -resize ${w}x${h} -background black -gravity center -extent ${w}x${h} sixel:-
+    iw=$(identify -format "%w" "${images[$show_counter]}")
+    ih=$(identify -format "%h" "${images[$show_counter]}")
+    # Calculate the new dimensions as 90% of the terminal dimensions
+    nw=$((w * 90 / 100))
+    nh=$((h * 90 / 100))
+
+    # Check if the image needs to be resized
+    if (( iw > nw || ih > nh )); then
+      ratio=$(awk "BEGIN {print $iw/$ih}")
+      if (( iw > ih )); then
+        nw=$(awk "BEGIN {print $nh*$ratio}")
+      else
+        nh=$(awk "BEGIN {print $nw/$ratio}")
+      fi
+      
+    else
+      # Image is already smaller than 90% of the terminal, no need to resize
+      nw=$(echo "$iw" | bc)
+      nh=$(echo "$ih" | bc)
+    fi
+
+    num_lines=$(( ($h - $nh) / 2 / $hc ))
+    indent=$(( ($w - $nw) / 2 / $wc ))
+    convert "${images[$show_counter]}" -bordercolor gray -border 2x2 -resize ${nw}x${nh} sixel:- | awk -v indent=$indent -v num_lines=$num_lines 'BEGIN { for (i=1; i<=num_lines; i++) printf("\n"); printf("%*s", indent, " "); } { print; }'
   fi
 }
 
